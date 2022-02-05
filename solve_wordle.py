@@ -1,7 +1,6 @@
 import json
 import string
 from typing import Tuple, Dict, List, Set, Optional
-import logging
 
 def get_words_with_letters(words: Set[str], 
                            required_letters: List[Tuple[chr, Optional[int]]], 
@@ -35,7 +34,7 @@ def get_words_with_letters(words: Set[str],
             not_allowed_words.add(word)
     return allowed_words, not_allowed_words
 
-def get_words_by_letter(words):
+def get_words_by_letter(words: Set[str]) -> Dict[chr, Set[str]]:
     words_by_letter = {}
     for letter in string.ascii_lowercase:
         words_by_letter[letter] = set()
@@ -44,7 +43,12 @@ def get_words_by_letter(words):
             words_by_letter[letter].add(word)
     return words_by_letter
 
-def get_most_unique_score_first(allowed_words: Set[str], all_words: Set[str]) -> List[Tuple[int, str]]:
+def get_most_unique_score(allowed_words: Set[str], all_words: Set[str],
+                          #required_letters: Set[Tuple[chr, Optional[int]]],
+                          #exclude_letters: Set[Tuple[chr, Optional[int]]],
+                          # TODO add ability to give extra partial points for
+                          #  looking for positions of required letters
+                          ) -> List[Tuple[int, str]]:
     scores_and_words = []
     words_by_letter = get_words_by_letter(allowed_words)
     num_allowed_words = len(allowed_words)
@@ -63,9 +67,7 @@ def get_most_unique_score_first(allowed_words: Set[str], all_words: Set[str]) ->
     best = sorted(scores_and_words, reverse=True)
     return best
 
-get_most_unique_score = get_most_unique_score_first
-
-def simulate_guess(guess, word):
+def simulate_guess(guess: str, word: str) -> str:
     response = '1'
     for i in range(5):
         if guess[i] == word[i]:
@@ -79,7 +81,7 @@ def simulate_guess(guess, word):
 def single_loop(all_words: Set[str], 
                 required_letters: Set[Tuple[chr, Optional[int]]], 
                 exclude_letters: Set[Tuple[chr, Optional[int]]],
-                guesses_to_show=3, guess_to_simulate=None):
+                guesses_to_show: int=3, guess_to_simulate: Optional[str]=None):
     allowed_words, not_allowed_words = get_words_with_letters(all_words, 
                            required_letters, 
                            exclude_letters)
@@ -114,7 +116,7 @@ def single_loop(all_words: Set[str],
     return new_required_letters, new_exclude_letters, allowed_words, word        
     
         
-def run_all(words):
+def run_all(words: Set[str]):
     required_letters = set()
     exclude_letters = set()
     all_words = words.copy()
@@ -127,7 +129,7 @@ def run_all(words):
                                                                        guesses_to_show=5,
                                                                        guess_to_simulate=None)
 
-def find_steps_required_to_solve(args):
+def find_steps_required_to_solve(args: Tuple[str, Set[str], int, bool]) -> Tuple[int, str]:
     (word_to_find, words, guesses_to_show, debug) = args
     counter = 0
     required_letters = set()
@@ -144,9 +146,10 @@ def find_steps_required_to_solve(args):
         counter += 1
         if guess == word_to_find:
             break
+    print((word_to_find, counter))
     return counter, word_to_find
 
-def load_words(file_name):
+def load_words(file_name: str) -> List[str]:
     with open(file_name, 'rt') as f:
         raw = json.load(f)
     all_words = list(sorted(raw['Ta'] + raw['La']))
