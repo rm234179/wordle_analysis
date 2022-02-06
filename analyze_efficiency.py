@@ -28,9 +28,17 @@ import solve_wordle
 if __name__ == '__main__':
     t0 = time.time()
     all_words = solve_wordle.load_words('wordle_words.json')
-    solve_wordle.get_most_unique_score = solve_wordle.get_most_unique_score_look_at_letter_score
-    dt, number_words_by_count, words_by_count = solve_wordle.find_parallel(all_words, solve_wordle.get_random_words(all_words, 12))
-    # find_parallel(all_words, all_words)
-    # counter, word = solve_wordle.find_steps_required_to_solve(('karks', all_words, 0, False))
-    # print(f"It took {counter} guesses to get {word}")
+    words_to_find = solve_wordle.get_random_words(all_words, 1000)
+    # scoring_algorithm = solve_wordle.get_most_unique_score_look_at_letter_score
+    # scoring_algorithm = solve_wordle.get_most_unique_score_look_at_allowed_words
+    # scoring_algorithm = solve_wordle.get_most_unique_score_look_at_all_words
+    scoring_algorithm = solve_wordle.get_most_unique_score_look_at_letter_score_all_words
+    # dt, number_words_by_count, words_by_count = solve_wordle.find_serial(all_words, words_to_find, scoring_algorithm)
+    dt, number_words_by_count, words_by_count = solve_wordle.find_parallel(all_words, words_to_find, scoring_algorithm)
+    print(dt)
+    print(number_words_by_count)
+    print(words_by_count)
+
+
+    # solve_wordle.find_steps_required_to_solve(('aloft', all_words, solve_wordle.get_most_unique_score_look_at_all_words, 5, True))
     print(f"Elapsed time {time.time() - t0: 0.2f} seconds")
